@@ -12,7 +12,7 @@ class TagSerializer(serializers.ModelSerializer):
 class NoteSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     tag_names = serializers.ListField(
-        child=serializers.CharField(), write_only=True, required=False
+        child=serializers.CharField(), write_only=True
     )
 
     class Meta:
@@ -25,3 +25,11 @@ class NoteSerializer(serializers.ModelSerializer):
             'tags',
             'tag_names'
         ]
+    
+    def create(self, validated_data):
+        tag_names = validated_data.pop('tag_names', [])
+        note = Note.objects.create(**validated_data)
+        for name in tag_names:
+            tag, _ = Tag.objects.get_or_create(name=name)
+            note.tags.add(tag)
+        return note

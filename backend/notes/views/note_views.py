@@ -25,15 +25,14 @@ class NoteListCreateView(APIView):
         if serializer.is_valid():
             title=serializer.validated_data["title"]
             content = serializer.validated_data['content']
-            tags = serializer.validated_data.get('tags', [])
+            tags = serializer.validated_data.get('tag_names', [])
             note = note_service.create_note_with_tags(
-                note_info={
-                    'title': title,
-                    'content': content,
-                    'tags': tags
-                },
+                title=title,
+                content=content,
+                tags=tags,
                 user=request.user
             )
             response_serializer = NoteSerializer(note)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
