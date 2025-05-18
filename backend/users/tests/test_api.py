@@ -9,7 +9,7 @@ class UserAuthTests(APITestCase):
         response = self.client.post(reverse('signup'), {
             "username": "newuser",
             "password": "newpassword123"
-        })
+        }, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
@@ -19,7 +19,7 @@ class UserAuthTests(APITestCase):
         response = self.client.post(reverse('signup'), {
             "username": "existinguser",
             "password": "pass"
-        })
+        }, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_login_success(self):
@@ -27,7 +27,7 @@ class UserAuthTests(APITestCase):
         response = self.client.post(reverse('token_obtain_pair'), {
             "username": "loginuser",
             "password": "test1234"
-        })
+        }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
@@ -36,5 +36,5 @@ class UserAuthTests(APITestCase):
         response = self.client.post(reverse('token_obtain_pair'), {
             "username": "wronguser",
             "password": "wrongpass"
-        })
+        }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

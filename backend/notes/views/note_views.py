@@ -1,38 +1,64 @@
-from rest_framework.views import APIView
+from rest_framework import viewsets, permissions
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from notes.services.note_service import NoteService
+from notes.serializers import NoteSerializer
 
-from notes.serializers import NoteSerializer, TagSerializer
-from notes.services import note_service
+class NoteViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
 
-# Create your views here.
+    def get_service(self):
+        return NoteService(self.request.user)
 
-class NoteListCreateView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request):
-        user = request.user
-        tag = request.query_params.get('tag')
-        if tag:
-            notes = note_service.filter_notes_by_tag(tag=tag, user=user)
-        else:
-            notes = note_service.list_all_notes(user=user)
+    def list(self, request):
+        service = self.get_service()
+        notes = service.list_notes(include_archived=False)
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        service = self.get_service()
+        note = service.note_repo.get_note(pk)
+        serializer = NoteSerializer(note)
+        return Response(serializer.data)
+
+    def create(self, request):
+        data = request.data
+        service = self.get_service()
+        note = service.create_note(
+            title=data.get('title'),
+            content=data.get('content'),
+            tag_names=data.get('tag_names', []),
+            is_archived=data.get('is_archived', False)
+        )
+        serializer = NoteSerializer(note)
+        return Response(serializer.data, status=201)
+
+    def update(self, request, pk=None):
+        data = request.data
+        service = self.get_service()
+        note = service.update_note(
+            note_id=pk,
+            title=data.get('title'),
+            content=data.get('content'),
+            tag_names=data.get('tag_names', []),
+            is_archived=data.get('is_archived')
+        )
+        serializer = NoteSerializer(note)
+        return Response(serializer.data)
+
+    def destroy(self, request, pk=None):
+        service = self.get_service()
+        service.delete_note(pk)
+        return Response(status=204)
     
-    def post(self, request):
-        serializer = NoteSerializer(data=request.data)
-        if serializer.is_valid():
-            title=serializer.validated_data["title"]
-            content = serializer.validated_data['content']
-            tags = serializer.validated_data.get('tag_names', [])
-            note = note_service.create_note_with_tags(
-                title=title,
-                content=content,
-                tags=tags,
-                user=request.user
-            )
-            response_serializer = NoteSerializer(note)
-            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ArchivedNoteViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_service(self):
+        return NoteService(self.request.user)
     
+    def list(self, request):
+        service = self.get_service()
+        notes = service.list_archived_notes()
+        serializer = NoteSerializer(notes, many=True)
+        return Response(serializer.data)

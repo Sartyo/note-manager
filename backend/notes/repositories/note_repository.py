@@ -1,14 +1,30 @@
-from notes.models import Note, Tag
+from notes.models import Note
 
-def create_note(title, content, tag_names, user):
-    note = Note.objects.create(title=title, content=content, user=user)
-    for name in tag_names:
-        tag, _ = Tag.objects.get_or_create(name=name, user=user)
-        note.tags.add(tag)
-    return note
+class NoteRepository:
+    def __init__(self, user):
+        self.user = user
 
-def get_all_notes(user):
-    return Note.objects.filter(user=user).prefetch_related('tags')
+    def list_notes(self, include_archived=False):
+        queryset = Note.objects.filter(user=self.user)
+        if not include_archived:
+            queryset = queryset.filter(is_archived=False)
+        return queryset
 
-def get_notes_by_tag(tag, user):
-    return Note.objects.filter(tags__name=tag, user=user).prefetch_related('tags', 'user')
+    def get_note(self, note_id):
+        return Note.objects.get(id=note_id, user=self.user)
+
+    def create_note(self, **kwargs):
+        return Note.objects.create(user=self.user, **kwargs)
+
+    def update_note(self, note, **kwargs):
+        for key, value in kwargs.items():
+            setattr(note, key, value)
+        note.save()
+        return note
+
+    def delete_note(self, note):
+        note.delete()
+
+    def list_archived_notes(self):
+        queryset = Note.objects.filter(user=self.user, is_archived=True)
+        return queryset
