@@ -1,4 +1,4 @@
-This project is a simple full stack application that allows the creation and management of notes and tags for said notes. This means creating, editing, archiving, deleting and viewing notes and tags.
+This project is a simple full stack application that allows the creation and management of notes. This means creating, editing, archiving, deleting and viewing notes.
 
 This application possesses an authentication system so a user can create and manage notes for itself without worrying for other users changing the notes that they have created.
 

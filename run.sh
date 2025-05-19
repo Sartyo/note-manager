@@ -21,25 +21,32 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # Set up environment variables or config files
-if [ ! -f ".env" ]; then
-  echo "🔧 Creating default .env file..."
-  cat <<EOF > .env
-DEBUG=True
-SECRET_KEY=your_secret_key
-ALLOWED_HOSTS=localhost,127.0.0.1
-CORS_ALLOWED_ORIGINS=http://localhost:4200
-EOF
+ENV_FILE=".env"
+if [ ! -f "$ENV_FILE" ]; then
+    echo "🔐 Generating SECRET_KEY and creating .env..."
+    SECRET_KEY=$(python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')
+    echo "SECRET_KEY=${SECRET_KEY}" > "$ENV_FILE"
+else
+    echo "📄 .env file already exists."
 fi
+
+# Export environment variables
+export $(grep -v '^#' .env | xargs)
 
 # Apply migrations
 python manage.py migrate
 
-# Collect static files (if needed)
-# python manage.py collectstatic --noinput
-
-# (Optional) Create superuser or load fixtures
-# echo "Creating superuser..."
-# python manage.py createsuperuser --noinput --username admin --email admin@example.com
+# Creating user for testing the app if it doesn't exists
+echo "👤 Creating test user..."
+python manage.py shell <<EOF
+from django.contrib.auth import get_user_model
+User = get_user_model()
+if not User.objects.filter(username='test').exists():
+    User.objects.create_user(username='test', password='test')
+    print("✅ User 'test' created.")
+else:
+    print("ℹ️ User 'test' already exists.")
+EOF
 
 # Run backend server in background
 echo "🚀 Starting Django server..."
