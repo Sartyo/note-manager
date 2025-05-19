@@ -2,7 +2,7 @@ This project is a simple full stack application that allows the creation and man
 
 This application possesses an authentication system so a user can create and manage notes for itself without worrying for other users changing the notes that they have created.
 
-This application was done by creating a backend REST API with Django(A python framework) and a frontend SPA on Angular
+This application was done by creating a backend REST API with Django(A python framework), a SQLite3 database and a frontend SPA on Angular
 
 frontend related tools:
    - Node version: 24.0.2
