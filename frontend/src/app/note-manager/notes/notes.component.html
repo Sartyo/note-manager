@@ -1,0 +1,42 @@
+<div *ngIf="loading">Loading notes...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<ul *ngIf="!loading && !error">
+  <div class="notes-header">
+    <button (click)="toggleArchived()" class="btn btn-toggle">
+      Show {{ showArchived ? 'Unarchived' : 'Archived' }} Notes
+    </button>
+  </div>
+
+  <div>
+  <h3>Create New Note</h3>
+    <input [(ngModel)]="newNoteTitle" placeholder="Title" />
+    <textarea [(ngModel)]="newNoteContent" placeholder="Content"></textarea>
+    <button (click)="createNote()">Create</button>
+  </div>
+
+  <hr />
+  <div class="notes-list">
+    <div *ngIf="notes.length === 0">No notes to display.</div>
+
+    <div *ngFor="let note of notes">
+      <div *ngIf="editingNoteId !== note.id" class="note-card">
+        <p>{{ note.title }}</p>
+        <p>{{ note.content }}</p>
+        <button (click)="startEditing(note)">Edit</button>
+        <button (click)="toggleArchive(note)">{{ note.is_archived ? 'Unarchive' : 'Archive' }}</button>
+        <button (click)="deleteNote(note.id)">Delete</button>
+      </div>
+
+      <div *ngIf="editingNoteId === note.id">
+        <input [(ngModel)]="editTitle" />
+        <textarea [(ngModel)]="editContent"></textarea>
+        <label>
+          <input type="checkbox" [(ngModel)]="editArchived" /> Archived
+        </label>
+        <button (click)="saveNote(note)">Save</button>
+        <button (click)="cancelEditing()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</ul>

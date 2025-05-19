@@ -10,8 +10,9 @@ class NoteViewSet(viewsets.ViewSet):
         return NoteService(self.request.user)
 
     def list(self, request):
+        is_archived = str_to_bool(request.query_params.get('is_archived', 'false'))
         service = self.get_service()
-        notes = service.list_notes(include_archived=False)
+        notes = service.list_notes(include_archived=is_archived)
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data)
 
@@ -62,3 +63,6 @@ class ArchivedNoteViewSet(viewsets.ViewSet):
         notes = service.list_archived_notes()
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data)
+    
+def str_to_bool(value):
+        return str(value).lower() in ['true', '1', 'yes']

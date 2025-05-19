@@ -4,10 +4,9 @@ class NoteRepository:
     def __init__(self, user):
         self.user = user
 
-    def list_notes(self, include_archived=False):
+    def list_notes(self, include_archived):
         queryset = Note.objects.filter(user=self.user)
-        if not include_archived:
-            queryset = queryset.filter(is_archived=False)
+        queryset = queryset.filter(is_archived=include_archived)
         return queryset
 
     def get_note(self, note_id):
@@ -28,3 +27,4 @@ class NoteRepository:
     def list_archived_notes(self):
         queryset = Note.objects.filter(user=self.user, is_archived=True)
         return queryset
+    

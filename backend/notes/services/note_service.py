@@ -8,7 +8,7 @@ class NoteService:
         self.note_repo = NoteRepository(user)
         self.tag_repo = TagRepository(user)
 
-    def list_notes(self, include_archived=False):
+    def list_notes(self, include_archived):
         return self.note_repo.list_notes(include_archived)
 
     def get_note(self, note_id):
