@@ -21,3 +21,6 @@ backend related tools:
    - Django cors headers version: 4.7.0 (for browser requests)
    - python dotenv version: 1.1.0 (for storing enviroment variables)
 
+To try this app, you can run the bash script run.sh, this will set up the application necessary configuration.
+
+You can use the username "test" and password "test" for logging in since this user will be created by default on the database
